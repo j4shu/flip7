@@ -1,10 +1,4 @@
-function getDeckCounts(deckInfo) {
-  if (typeof deckInfo === "number")
-    return { total: deckInfo, numberCards: deckInfo, actionCards: 0 };
-  if (Array.isArray(deckInfo))
-    return { total: deckInfo.length, numberCards: 0, actionCards: 0 };
-  return deckInfo;
-}
+import { getDeckSize } from "../game/deck.js";
 
 export function Controls({
   isBotTurn,
@@ -13,8 +7,8 @@ export function Controls({
   deckInfo,
   discardCount,
 }) {
-  const { total } = getDeckCounts(deckInfo);
-  const canDraw = total > 0 || discardCount > 0;
+  const deckSize = getDeckSize(deckInfo);
+  const canDraw = deckSize > 0 || discardCount > 0;
 
   return (
     <div className="controls">
@@ -38,7 +32,7 @@ export function Controls({
           Stay
         </button>
       </div>
-      <div className="controls__deck-count">Cards remaining: {total}</div>
+      <div className="controls__deck-count">Cards remaining: {deckSize}</div>
     </div>
   );
 }

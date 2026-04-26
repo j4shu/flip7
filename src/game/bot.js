@@ -1,4 +1,5 @@
 import { CARDS_PER_VALUE } from './constants.js';
+import { getDeckSize, getDiscardSize } from './deck.js';
 
 /**
  * Calculate the probability of busting on the next draw for a given player.
@@ -11,8 +12,8 @@ import { CARDS_PER_VALUE } from './constants.js';
 export function calculateBustProbability(G, playerID) {
   const player = G.players[playerID];
   const lineup = player.lineup;
-  const deckSize = typeof G.deck === 'object' && !Array.isArray(G.deck) ? G.deck.total : (typeof G.deck === 'number' ? G.deck : G.deck.length);
-  const discardSize = typeof G.discard === 'number' ? G.discard : (Array.isArray(G.discard) ? G.discard.length : 0);
+  const deckSize = getDeckSize(G.deck);
+  const discardSize = getDiscardSize(G.discard);
 
   if (lineup.length === 0) return 0;
   if (deckSize === 0 && discardSize === 0) return 1;
@@ -65,7 +66,7 @@ export function resetBotPersonality() {
 export function decideBotMove(G, botID) {
   const bot = G.players[botID];
   const lineup = bot.lineup;
-  const deckSize = typeof G.deck === 'object' && !Array.isArray(G.deck) ? G.deck.total : (typeof G.deck === 'number' ? G.deck : G.deck.length);
+  const deckSize = getDeckSize(G.deck);
 
   if (lineup.length === 0) return 'hit';
   if (deckSize === 0) return 'stay';

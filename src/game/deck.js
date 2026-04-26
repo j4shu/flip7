@@ -23,3 +23,19 @@ export function createDeck() {
 export function isActionCard(card) {
   return typeof card === 'string';
 }
+
+/**
+ * Extract the deck/discard size from G, regardless of whether
+ * playerView has transformed them (array → object/number).
+ */
+export function getDeckSize(deck) {
+  if (typeof deck === 'number') return deck;
+  if (Array.isArray(deck)) return deck.length;
+  return deck.total;
+}
+
+export function getDiscardSize(discard) {
+  if (typeof discard === 'number') return discard;
+  if (Array.isArray(discard)) return discard.length;
+  return 0;
+}

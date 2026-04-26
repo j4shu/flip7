@@ -4,6 +4,7 @@ import { Controls } from "./Controls.jsx";
 import { Scoreboard } from "./Scoreboard.jsx";
 import { GameOver } from "./GameOver.jsx";
 import { decideBotMove, calculateBustProbability } from "../game/bot.js";
+import { getDiscardSize } from "../game/deck.js";
 import { BOT_ID, PLAYER_NAMES, STATUS_LABELS } from "../game/constants.js";
 import "./Board.css";
 
@@ -101,7 +102,7 @@ export function Board({ G, ctx, moves, reset }) {
           isActive={isCurrentActive}
           moves={moves}
           deckInfo={G.deck}
-          discardCount={typeof G.discard === 'number' ? G.discard : G.discard.length}
+          discardCount={getDiscardSize(G.discard)}
         />
       )}
 
