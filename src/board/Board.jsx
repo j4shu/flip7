@@ -71,7 +71,7 @@ export function Board({ G, ctx, moves, reset }) {
       } else {
         moves.stay();
       }
-    }, 500);
+    }, 1000);
 
     return () => clearTimeout(botTimerRef.current);
   }, [isBotTurn, isCurrentActive, showRoundSummary, G]);
