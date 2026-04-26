@@ -1,4 +1,3 @@
-import React from 'react';
 import { PLAYER_NAMES } from '../game/constants.js';
 import { resetBotPersonality } from '../game/bot.js';
 

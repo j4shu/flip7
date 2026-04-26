@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { PlayerPanel } from "./PlayerPanel.jsx";
 import { Controls } from "./Controls.jsx";
 import { Scoreboard } from "./Scoreboard.jsx";

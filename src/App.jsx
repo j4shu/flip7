@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Client } from 'boardgame.io/react';
 import { Flip7 } from './game/Game.js';
 import { Board } from './board/Board.jsx';

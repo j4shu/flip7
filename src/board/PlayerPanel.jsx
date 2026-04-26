@@ -1,4 +1,3 @@
-import React from "react";
 import { Card } from "./Card.jsx";
 import { PLAYER_NAMES } from "../game/constants.js";
 

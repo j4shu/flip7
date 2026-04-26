@@ -1,4 +1,3 @@
-import React from "react";
 import {
   ACTION_CARD_LABELS,
   FREEZE,
