@@ -7,24 +7,24 @@ import { getDeckSize, getDiscardSize } from './deck.js';
  * If the player has a second chance, the effective bust probability is
  * the chance of busting TWICE in a row (very low), so we return 0.
  *
- * Returns 0 for an empty lineup, 1 if the deck is empty.
+ * Returns 0 for an empty hand, 1 if the deck is empty.
  */
 export function calculateBustProbability(G, playerID) {
   const player = G.players[playerID];
-  const lineup = player.lineup;
+  const hand = player.hand;
   const deckSize = getDeckSize(G.deck);
   const discardSize = getDiscardSize(G.discard);
 
-  if (lineup.length === 0) return 0;
+  if (hand.length === 0) return 0;
   if (deckSize === 0 && discardSize === 0) return 1;
   if (player.hasSecondChance) return 0;
 
   let dangerousCards = 0;
-  for (const value of lineup) {
+  for (const value of hand) {
     let remaining = CARDS_PER_VALUE - 1; // we already have one copy
     for (const [id, other] of Object.entries(G.players)) {
       if (id === playerID) continue;
-      for (const card of other.lineup) {
+      for (const card of other.hand) {
         if (card === value) remaining--;
       }
     }
@@ -60,20 +60,20 @@ export function resetBotPersonality() {
  *
  * Strategy: calculate the probability of busting (drawing a duplicate)
  * based on visible information, then compare against a risk threshold
- * that tightens as the lineup grows. The threshold parameters are
+ * that tightens as the hand grows. The threshold parameters are
  * randomized per game so the bot plays differently each time.
  */
 export function decideBotMove(G, botID) {
   const bot = G.players[botID];
-  const lineup = bot.lineup;
+  const hand = bot.hand;
   const deckSize = getDeckSize(G.deck);
 
-  if (lineup.length === 0) return 'hit';
+  if (hand.length === 0) return 'hit';
   if (deckSize === 0) return 'stay';
 
   const bustProb = calculateBustProbability(G, botID);
   const { baseThreshold, perCardPenalty } = botPersonality;
-  const threshold = baseThreshold - lineup.length * perCardPenalty;
+  const threshold = baseThreshold - hand.length * perCardPenalty;
 
   if (bustProb >= threshold) return 'stay';
 

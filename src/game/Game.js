@@ -5,8 +5,8 @@ import {
   FREEZE, FLIP3, SECOND_CHANCE,
 } from './constants.js';
 
-function sumLineup(lineup) {
-  return lineup.reduce((sum, card) => sum + card, 0);
+function sumHand(hand) {
+  return hand.reduce((sum, card) => sum + card, 0);
 }
 
 function allPlayersInactive(G) {
@@ -30,7 +30,7 @@ function reshuffleIfNeeded(G, random) {
 /**
  * Draw a single card and apply its effect.
  * Consumed cards (action cards, busted/saved duplicates) go straight to discard.
- * Unique number cards go to the player's lineup (discarded at round end).
+ * Unique number cards go to the player's hand (discarded at round end).
  */
 function drawCard(G, player, playerID, draws, random) {
   reshuffleIfNeeded(G, random);
@@ -55,7 +55,7 @@ function drawCard(G, player, playerID, draws, random) {
     }
   } else {
     // Number card
-    const hasDuplicate = player.lineup.includes(card);
+    const hasDuplicate = player.hand.includes(card);
 
     if (hasDuplicate) {
       G.discard.push(card);
@@ -67,11 +67,11 @@ function drawCard(G, player, playerID, draws, random) {
         draws.push({ card, type: 'number', busted: true });
       }
     } else {
-      // Card stays in lineup (not discarded until round end)
-      player.lineup.push(card);
+      // Card stays in hand (not discarded until round end)
+      player.hand.push(card);
       draws.push({ card, type: 'number' });
 
-      if (player.lineup.length >= FLIP7_COUNT) {
+      if (player.hand.length >= FLIP7_COUNT) {
         player.status = 'flip7';
       }
     }
@@ -84,9 +84,9 @@ function resolveRound(G, events, random) {
   for (const [id, player] of Object.entries(G.players)) {
     let roundScore = 0;
     if (player.status === 'flip7') {
-      roundScore = sumLineup(player.lineup) + FLIP7_BONUS;
+      roundScore = sumHand(player.hand) + FLIP7_BONUS;
     } else if (player.status === 'stayed' || player.status === 'active') {
-      roundScore = sumLineup(player.lineup);
+      roundScore = sumHand(player.hand);
     }
     roundScores[id] = roundScore;
     G.totalScores[id] += roundScore;
@@ -97,7 +97,7 @@ function resolveRound(G, events, random) {
     round: G.round,
     scores: roundScores,
     players: Object.fromEntries(
-      Object.entries(G.players).map(([id, p]) => [id, { status: p.status, lineup: [...p.lineup] }])
+      Object.entries(G.players).map(([id, p]) => [id, { status: p.status, hand: [...p.hand] }])
     ),
   };
 
@@ -116,15 +116,15 @@ function resolveRound(G, events, random) {
     return;
   }
 
-  // Discard all lineup cards, then reset players for next round
+  // Discard all hand cards, then reset players for next round
   for (const player of Object.values(G.players)) {
-    G.discard.push(...player.lineup);
+    G.discard.push(...player.hand);
   }
   G.round += 1;
   G.roundStartPlayer = G.roundStartPlayer === '0' ? '1' : '0';
   G.lastAction = null;
   for (const id of Object.keys(G.players)) {
-    G.players[id] = { lineup: [], status: 'active', hasSecondChance: false };
+    G.players[id] = { hand: [], status: 'active', hasSecondChance: false };
   }
 
   // If the deck ran out, reshuffle discard into deck
@@ -138,7 +138,7 @@ export const Flip7 = {
     const players = {};
     const totalScores = {};
     for (let i = 0; i < ctx.numPlayers; i++) {
-      players[String(i)] = { lineup: [], status: 'active', hasSecondChance: false };
+      players[String(i)] = { hand: [], status: 'active', hasSecondChance: false };
       totalScores[String(i)] = 0;
     }
     return {

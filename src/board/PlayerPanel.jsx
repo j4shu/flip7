@@ -24,7 +24,7 @@ export function PlayerPanel({
   if (player.status === "busted") panelClass += " player-panel--busted";
   if (player.status === "flip7") panelClass += " player-panel--flip7";
 
-  const lineupSum = player.lineup.reduce((s, c) => s + c, 0);
+  const handSum = player.hand.reduce((s, c) => s + c, 0);
 
   // Find the last number card drawn this turn (for highlight)
   const lastNumberDraw = [...draws]
@@ -53,11 +53,11 @@ export function PlayerPanel({
       </div>
 
       <div className="player-panel__cards">
-        {player.lineup.map((card, i) => (
+        {player.hand.map((card, i) => (
           <Card
             key={i}
             value={card}
-            isNew={card === lastNewCard && i === player.lineup.length - 1}
+            isNew={card === lastNewCard && i === player.hand.length - 1}
           />
         ))}
         {actionDraws.map((d, i) => (
@@ -94,7 +94,7 @@ export function PlayerPanel({
         })()}
 
       <div className="player-panel__scores">
-        <span>Round: {lineupSum}</span>
+        <span>Round: {handSum}</span>
         <span>Total: {totalScore}</span>
       </div>
     </div>
