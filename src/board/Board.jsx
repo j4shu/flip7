@@ -4,15 +4,8 @@ import { Controls } from "./Controls.jsx";
 import { Scoreboard } from "./Scoreboard.jsx";
 import { GameOver } from "./GameOver.jsx";
 import { decideBotMove, calculateBustProbability } from "../game/bot.js";
-import { BOT_ID, PLAYER_NAMES } from "../game/constants.js";
+import { BOT_ID, PLAYER_NAMES, STATUS_LABELS } from "../game/constants.js";
 import "./Board.css";
-
-const STATUS_LABELS = {
-  active: "Active",
-  stayed: "Stayed",
-  busted: "Busted",
-  flip7: "FLIP 7!",
-};
 
 function RoundSummary({ roundResults, onDismiss }) {
   return (

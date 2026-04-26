@@ -1,12 +1,5 @@
 import { Card } from "./Card.jsx";
-import { PLAYER_NAMES } from "../game/constants.js";
-
-const STATUS_LABELS = {
-  active: "Active",
-  stayed: "Stayed",
-  busted: "Busted",
-  flip7: "FLIP 7!",
-};
+import { PLAYER_NAMES, STATUS_LABELS } from "../game/constants.js";
 
 function getRiskLevel(pct) {
   if (pct === 0) return "none";

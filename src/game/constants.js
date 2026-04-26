@@ -12,6 +12,13 @@ export const PLAYER_NAMES = {
   [BOT_ID]: 'Bot',
 };
 
+export const STATUS_LABELS = {
+  active: 'Active',
+  stayed: 'Stayed',
+  busted: 'Busted',
+  flip7: 'FLIP 7!',
+};
+
 // Action card types (stored as strings in the deck to distinguish from number cards)
 export const FREEZE = 'freeze';
 export const FLIP3 = 'flip3';
