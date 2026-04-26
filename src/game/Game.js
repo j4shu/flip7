@@ -43,9 +43,8 @@ function resolveRound(G, events, random) {
     round: G.round,
     scores: roundScores,
     players: Object.fromEntries(
-      Object.entries(G.players).map(([id, p]) => [id, { status: p.status, hand: [...p.hand] }])
+      Object.entries(G.players).map(([id, p]) => [id, { status: p.status, hand: [...p.hand], bustCard: p.bustCard }])
     ),
-    lastAction: G.lastAction,
   };
 
   // Check for game end
@@ -71,7 +70,7 @@ function resolveRound(G, events, random) {
   G.roundStartPlayer = G.roundStartPlayer === '0' ? '1' : '0';
   G.lastAction = null;
   for (const id of Object.keys(G.players)) {
-    G.players[id] = { hand: [], status: 'active' };
+    G.players[id] = { hand: [], status: 'active', bustCard: null };
   }
 
   reshuffleIfNeeded(G, random);
@@ -84,7 +83,7 @@ export const Flip7 = {
     const players = {};
     const totalScores = {};
     for (let i = 0; i < ctx.numPlayers; i++) {
-      players[String(i)] = { hand: [], status: 'active' };
+      players[String(i)] = { hand: [], status: 'active', bustCard: null };
       totalScores[String(i)] = 0;
     }
     return {
@@ -113,6 +112,7 @@ export const Flip7 = {
       if (hasDuplicate) {
         G.discard.push(card);
         player.status = 'busted';
+        player.bustCard = card;
         G.lastAction = {
           playerID: ctx.currentPlayer,
           draws: [{ card, type: 'number', busted: true }],

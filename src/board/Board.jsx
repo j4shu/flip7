@@ -96,9 +96,7 @@ export function Board({ G, ctx, moves, reset }) {
               isCurrent={
                 !showingRound && ctx.currentPlayer === id && !isGameOver
               }
-              lastAction={
-                showingRound ? lastRoundResults.lastAction : G.lastAction
-              }
+              lastAction={showingRound ? null : G.lastAction}
               totalScore={G.totalScores[id]}
               bustChance={showingRound ? 0 : calculateBustProbability(G, id)}
             />

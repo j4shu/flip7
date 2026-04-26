@@ -32,9 +32,6 @@ export function PlayerPanel({
     .find((d) => !d.busted);
   const lastNewCard = lastNumberDraw ? lastNumberDraw.card : null;
 
-  // Find bust card if any
-  const bustDraw = draws.find((d) => d.busted);
-
   return (
     <div className={panelClass}>
       <div className="player-panel__header">
@@ -54,7 +51,7 @@ export function PlayerPanel({
             isNew={card === lastNewCard && i === player.hand.length - 1}
           />
         ))}
-        {bustDraw && <Card value={bustDraw.card} isNew isBust />}
+        {player.bustCard != null && <Card value={player.bustCard} isBust />}
       </div>
 
       {player.status === "active" &&
