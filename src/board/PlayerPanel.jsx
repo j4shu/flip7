@@ -3,8 +3,8 @@ import { PLAYER_NAMES, STATUS_LABELS } from "../game/constants.js";
 
 function getRiskLevel(pct) {
   if (pct === 0) return "none";
-  if (pct < 26) return "low";
-  if (pct < 51) return "medium";
+  if (pct <= 15) return "low";
+  if (pct <= 35) return "medium";
   return "high";
 }
 
