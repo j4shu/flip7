@@ -120,6 +120,7 @@ function resolveRound(G, events, random) {
     G.discard.push(...player.lineup);
   }
   G.round += 1;
+  G.roundStartPlayer = G.roundStartPlayer === '0' ? '1' : '0';
   G.lastAction = null;
   for (const id of Object.keys(G.players)) {
     G.players[id] = { lineup: [], status: 'active', hasSecondChance: false };
@@ -145,6 +146,7 @@ export const Flip7 = {
       players,
       totalScores,
       round: 1,
+      roundStartPlayer: '0',
       lastAction: null,
       roundResults: null,
     };
@@ -169,6 +171,9 @@ export const Flip7 = {
       // Check if round should end
       if (anyFlip7(G) || allPlayersInactive(G)) {
         resolveRound(G, events, random);
+        events.endTurn({ next: G.roundStartPlayer });
+      } else {
+        events.endTurn();
       }
     },
 
@@ -182,12 +187,14 @@ export const Flip7 = {
 
       if (allPlayersInactive(G)) {
         resolveRound(G, events, random);
+        events.endTurn({ next: G.roundStartPlayer });
+      } else {
+        events.endTurn();
       }
     },
   },
 
   turn: {
-    maxMoves: 1,
     order: {
       first: () => 0,
       next: ({ G, ctx }) => {
