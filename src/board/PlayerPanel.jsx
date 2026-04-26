@@ -9,12 +9,20 @@ const STATUS_LABELS = {
   flip7: "FLIP 7!",
 };
 
+function getRiskLevel(pct) {
+  if (pct === 0) return "none";
+  if (pct < 26) return "low";
+  if (pct < 51) return "medium";
+  return "high";
+}
+
 export function PlayerPanel({
   playerID,
   player,
   isCurrent,
   lastAction,
   totalScore,
+  bustChance,
 }) {
   const isLastActionMine = lastAction && lastAction.playerID === playerID;
   const draws = isLastActionMine ? lastAction.draws : [];
@@ -72,6 +80,26 @@ export function PlayerPanel({
       {player.hasSecondChance && (
         <div className="player-panel__second-chance">❤️‍🩹</div>
       )}
+
+      {player.status === "active" &&
+        (() => {
+          const pct = Math.round(bustChance * 100);
+          const riskLevel = getRiskLevel(pct);
+          return (
+            <div
+              className={`player-panel__risk player-panel__risk--${riskLevel}`}
+            >
+              <span className="player-panel__risk-label">Bust</span>
+              <span className="player-panel__risk-value">{pct}%</span>
+              <div className="player-panel__risk-bar">
+                <div
+                  className="player-panel__risk-fill"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+          );
+        })()}
 
       <div className="player-panel__scores">
         <span>Round: {lineupSum}</span>

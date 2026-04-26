@@ -1,12 +1,5 @@
 import React from "react";
 
-function getRiskLevel(pct) {
-  if (pct === 0) return "none";
-  if (pct < 33) return "low";
-  if (pct < 66) return "medium";
-  return "high";
-}
-
 function getDeckCounts(deckInfo) {
   if (typeof deckInfo === "number")
     return { total: deckInfo, numberCards: deckInfo, actionCards: 0 };
@@ -15,9 +8,7 @@ function getDeckCounts(deckInfo) {
   return deckInfo;
 }
 
-export function Controls({ isBotTurn, isActive, moves, deckInfo, bustChance }) {
-  const pct = Math.round(bustChance * 100);
-  const riskLevel = getRiskLevel(pct);
+export function Controls({ isBotTurn, isActive, moves, deckInfo }) {
   const { total, numberCards, actionCards } = getDeckCounts(deckInfo);
 
   return (
@@ -25,16 +16,6 @@ export function Controls({ isBotTurn, isActive, moves, deckInfo, bustChance }) {
       <div className="controls__label">
         {isBotTurn ? "Bot is thinking..." : "Your Turn"}
       </div>
-
-      {!isBotTurn && isActive && (
-        <div className={`controls__risk controls__risk--${riskLevel}`}>
-          <span className="controls__risk-label">Bust Chance</span>
-          <span className="controls__risk-value">{pct}%</span>
-          <div className="controls__risk-bar">
-            <div className="controls__risk-fill" style={{ width: `${pct}%` }} />
-          </div>
-        </div>
-      )}
 
       <div className="controls__buttons">
         <button
@@ -52,8 +33,13 @@ export function Controls({ isBotTurn, isActive, moves, deckInfo, bustChance }) {
           Stay
         </button>
       </div>
-      <div className="controls__deck-count">
-        Cards Remaining: {numberCards} number, {actionCards} action
+      <div className="controls__deck-counts">
+        <div className="controls__deck-count">
+          Remaining Number Cards: {numberCards}
+        </div>
+        <div className="controls__deck-count">
+          Remaining Action Cards: {actionCards}
+        </div>
       </div>
     </div>
   );

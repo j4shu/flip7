@@ -4,7 +4,7 @@ import { Controls } from "./Controls.jsx";
 import { Scoreboard } from "./Scoreboard.jsx";
 import { GameOver } from "./GameOver.jsx";
 import { decideBotMove, calculateBustProbability } from "../game/bot.js";
-import { BOT_ID, HUMAN_ID, PLAYER_NAMES } from "../game/constants.js";
+import { BOT_ID, PLAYER_NAMES } from "../game/constants.js";
 import "./Board.css";
 
 const STATUS_LABELS = {
@@ -76,7 +76,7 @@ export function Board({ G, ctx, moves, reset }) {
       } else {
         moves.stay();
       }
-    }, 800);
+    }, 400);
 
     return () => clearTimeout(botTimerRef.current);
   }, [isBotTurn, isCurrentActive, showRoundSummary, G]);
@@ -96,6 +96,7 @@ export function Board({ G, ctx, moves, reset }) {
             isCurrent={ctx.currentPlayer === id && !isGameOver}
             lastAction={G.lastAction}
             totalScore={G.totalScores[id]}
+            bustChance={calculateBustProbability(G, id)}
           />
         ))}
       </div>
@@ -106,7 +107,6 @@ export function Board({ G, ctx, moves, reset }) {
           isActive={isCurrentActive}
           moves={moves}
           deckInfo={G.deck}
-          bustChance={calculateBustProbability(G, HUMAN_ID)}
         />
       )}
 

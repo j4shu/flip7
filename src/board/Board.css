@@ -138,6 +138,52 @@
   margin-bottom: 12px;
 }
 
+/* ===== Per-Player Risk Bar ===== */
+
+.player-panel__risk {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 4px 0;
+}
+
+.player-panel__risk-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #888;
+}
+
+.player-panel__risk-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  min-width: 32px;
+}
+
+.player-panel__risk--none .player-panel__risk-value { color: #2e7d32; }
+.player-panel__risk--low .player-panel__risk-value { color: #2e7d32; }
+.player-panel__risk--medium .player-panel__risk-value { color: #e65100; }
+.player-panel__risk--high .player-panel__risk-value { color: #c62828; }
+
+.player-panel__risk-bar {
+  flex: 1;
+  height: 6px;
+  background: #e0e0e8;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.player-panel__risk-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.player-panel__risk--none .player-panel__risk-fill { background: #2e7d32; }
+.player-panel__risk--low .player-panel__risk-fill { background: #4caf50; }
+.player-panel__risk--medium .player-panel__risk-fill { background: #ff9800; }
+.player-panel__risk--high .player-panel__risk-fill { background: #c62828; }
+
 .player-panel__scores {
   display: flex;
   justify-content: space-between;
@@ -301,56 +347,14 @@
   background: #d0d0da;
 }
 
-.controls__risk {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 14px;
-  padding: 8px 16px;
-  border-radius: 8px;
-  background: #f0f0f5;
+.controls__deck-counts {
+  margin-top: 4px;
 }
-
-.controls__risk-label {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #666;
-}
-
-.controls__risk-value {
-  font-size: 1.1rem;
-  font-weight: 700;
-  min-width: 40px;
-}
-
-.controls__risk--none .controls__risk-value { color: #2e7d32; }
-.controls__risk--low .controls__risk-value { color: #2e7d32; }
-.controls__risk--medium .controls__risk-value { color: #e65100; }
-.controls__risk--high .controls__risk-value { color: #c62828; }
-
-.controls__risk-bar {
-  width: 100px;
-  height: 8px;
-  background: #e0e0e8;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.controls__risk-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.3s ease;
-}
-
-.controls__risk--none .controls__risk-fill { background: #2e7d32; }
-.controls__risk--low .controls__risk-fill { background: #4caf50; }
-.controls__risk--medium .controls__risk-fill { background: #ff9800; }
-.controls__risk--high .controls__risk-fill { background: #c62828; }
 
 .controls__deck-count {
   font-size: 0.85rem;
   color: #888;
+  line-height: 1.5;
 }
 
 /* ===== Game Over ===== */
