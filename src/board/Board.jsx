@@ -78,7 +78,7 @@ export function Board({ G, ctx, moves, reset }) {
 
   return (
     <div className="board">
-      <h1 className="board__title">Flip 7</h1>
+      <h1 className="board__title">Flip7</h1>
 
       <Scoreboard totalScores={G.totalScores} round={G.round} />
 
