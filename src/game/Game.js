@@ -153,16 +153,14 @@ export const Flip7 = {
     order: {
       first: () => 0,
       next: ({ G, ctx }) => {
-        const numPlayers = ctx.numPlayers;
-        let pos = ctx.playOrderPos;
-        for (let i = 0; i < numPlayers; i++) {
-          pos = (pos + 1) % numPlayers;
-          const id = ctx.playOrder[pos];
-          if (G.players[id].status === 'active') {
-            return pos;
-          }
+        const otherPos = (ctx.playOrderPos + 1) % 2;
+        const otherID = ctx.playOrder[otherPos];
+        if (G.players[otherID].status === 'active') {
+          return otherPos;
         }
-        return (ctx.playOrderPos + 1) % numPlayers;
+        // Other player is done — stay on current position
+        // (round resolution will handle ending the round)
+        return ctx.playOrderPos;
       },
     },
   },
