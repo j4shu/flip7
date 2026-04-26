@@ -83,7 +83,7 @@ export function PlayerPanel({
 
       {player.status === "active" &&
         (() => {
-          const pct = Math.round(bustChance * 100);
+          const pct = (bustChance * 100).toFixed(2);
           const riskLevel = getRiskLevel(pct);
           return (
             <div
