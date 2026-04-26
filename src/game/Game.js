@@ -113,10 +113,10 @@ export const Flip7 = {
         G.discard.push(card);
         player.status = 'busted';
         player.bustCard = card;
-        G.lastAction = { playerID: ctx.currentPlayer, draws: [] };
+        G.lastAction = null;
       } else {
         player.hand.push(card);
-        G.lastAction = { playerID: ctx.currentPlayer, draws: [{ card }] };
+        G.lastAction = { playerID: ctx.currentPlayer, card };
 
         if (player.hand.length >= FLIP7_COUNT) {
           player.status = 'flip7';
@@ -138,7 +138,7 @@ export const Flip7 = {
       if (player.status !== 'active') return INVALID_MOVE;
 
       player.status = 'stayed';
-      G.lastAction = { playerID: ctx.currentPlayer, draws: [] };
+      G.lastAction = null;
 
       if (allPlayersInactive(G)) {
         resolveRound(G, events, random);

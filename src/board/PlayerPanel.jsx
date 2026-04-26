@@ -16,8 +16,9 @@ export function PlayerPanel({
   totalScore,
   bustChance,
 }) {
-  const isLastActionMine = lastAction && lastAction.playerID === playerID;
-  const draws = isLastActionMine ? lastAction.draws : [];
+  // Card to highlight with the "new" animation
+  const lastNewCard =
+    lastAction && lastAction.playerID === playerID ? lastAction.card : null;
 
   let panelClass = "player-panel";
   if (isCurrent) panelClass += " player-panel--current";
@@ -25,10 +26,6 @@ export function PlayerPanel({
   if (player.status === "flip7") panelClass += " player-panel--flip7";
 
   const handSum = player.hand.reduce((s, c) => s + c, 0);
-
-  // Highlight the most recently drawn card
-  const lastDraw = draws[draws.length - 1];
-  const lastNewCard = lastDraw ? lastDraw.card : null;
 
   return (
     <div className={panelClass}>
