@@ -29,17 +29,11 @@ export function PlayerPanel({
   // Find the last number card drawn this turn (for highlight)
   const lastNumberDraw = [...draws]
     .reverse()
-    .find((d) => d.type === "number" && !d.busted && !d.saved);
+    .find((d) => !d.busted);
   const lastNewCard = lastNumberDraw ? lastNumberDraw.card : null;
 
   // Find bust card if any
   const bustDraw = draws.find((d) => d.busted);
-
-  // Find saved cards (second chance consumed)
-  const savedDraws = draws.filter((d) => d.saved);
-
-  // Action cards drawn this turn
-  const actionDraws = draws.filter((d) => d.type === "action");
 
   return (
     <div className={panelClass}>
@@ -60,18 +54,8 @@ export function PlayerPanel({
             isNew={card === lastNewCard && i === player.hand.length - 1}
           />
         ))}
-        {actionDraws.map((d, i) => (
-          <Card key={`action-${i}`} value={d.card} isNew />
-        ))}
-        {savedDraws.map((d, i) => (
-          <Card key={`saved-${i}`} value={d.card} isNew isSaved />
-        ))}
         {bustDraw && <Card value={bustDraw.card} isNew isBust />}
       </div>
-
-      {player.hasSecondChance && (
-        <div className="player-panel__second-chance">❤️‍🩹</div>
-      )}
 
       {player.status === "active" &&
         (() => {

@@ -1,9 +1,6 @@
 import { INVALID_MOVE } from 'boardgame.io/core';
-import { createDeck, isActionCard } from './deck.js';
-import {
-  WINNING_SCORE, FLIP7_COUNT, FLIP7_BONUS,
-  FREEZE, FLIP3, SECOND_CHANCE,
-} from './constants.js';
+import { createDeck } from './deck.js';
+import { WINNING_SCORE, FLIP7_COUNT, FLIP7_BONUS } from './constants.js';
 
 function sumHand(hand) {
   return hand.reduce((sum, card) => sum + card, 0);
@@ -24,57 +21,6 @@ function reshuffleIfNeeded(G, random) {
   if (G.deck.length === 0 && G.discard.length > 0) {
     G.deck = random.Shuffle([...G.discard]);
     G.discard = [];
-  }
-}
-
-/**
- * Draw a single card and apply its effect.
- * Consumed cards (action cards, busted/saved duplicates) go straight to discard.
- * Unique number cards go to the player's hand (discarded at round end).
- */
-function drawCard(G, player, playerID, draws, random) {
-  reshuffleIfNeeded(G, random);
-  if (G.deck.length === 0 || player.status !== 'active') return;
-
-  const card = G.deck.pop();
-
-  if (isActionCard(card)) {
-    G.discard.push(card);
-    draws.push({ card, type: 'action' });
-
-    if (card === FREEZE) {
-      const opponentID = playerID === '0' ? '1' : '0';
-      G.players[opponentID].status = 'stayed';
-    } else if (card === SECOND_CHANCE) {
-      player.hasSecondChance = true;
-    } else if (card === FLIP3) {
-      for (let i = 0; i < 3; i++) {
-        if (player.status !== 'active') break;
-        drawCard(G, player, playerID, draws, random);
-      }
-    }
-  } else {
-    // Number card
-    const hasDuplicate = player.hand.includes(card);
-
-    if (hasDuplicate) {
-      G.discard.push(card);
-      if (player.hasSecondChance) {
-        player.hasSecondChance = false;
-        draws.push({ card, type: 'number', saved: true });
-      } else {
-        player.status = 'busted';
-        draws.push({ card, type: 'number', busted: true });
-      }
-    } else {
-      // Card stays in hand (not discarded until round end)
-      player.hand.push(card);
-      draws.push({ card, type: 'number' });
-
-      if (player.hand.length >= FLIP7_COUNT) {
-        player.status = 'flip7';
-      }
-    }
   }
 }
 
@@ -124,10 +70,9 @@ function resolveRound(G, events, random) {
   G.roundStartPlayer = G.roundStartPlayer === '0' ? '1' : '0';
   G.lastAction = null;
   for (const id of Object.keys(G.players)) {
-    G.players[id] = { hand: [], status: 'active', hasSecondChance: false };
+    G.players[id] = { hand: [], status: 'active' };
   }
 
-  // If the deck ran out, reshuffle discard into deck
   reshuffleIfNeeded(G, random);
 }
 
@@ -138,7 +83,7 @@ export const Flip7 = {
     const players = {};
     const totalScores = {};
     for (let i = 0; i < ctx.numPlayers; i++) {
-      players[String(i)] = { hand: [], status: 'active', hasSecondChance: false };
+      players[String(i)] = { hand: [], status: 'active' };
       totalScores[String(i)] = 0;
     }
     return {
@@ -160,14 +105,30 @@ export const Flip7 = {
       if (player.status !== 'active') return INVALID_MOVE;
       if (G.deck.length === 0 && G.discard.length === 0) return INVALID_MOVE;
 
-      const draws = [];
-      drawCard(G, player, ctx.currentPlayer, draws, random);
+      reshuffleIfNeeded(G, random);
+      const card = G.deck.pop();
+      const hasDuplicate = player.hand.includes(card);
 
-      G.lastAction = {
-        playerID: ctx.currentPlayer,
-        draws,
-        busted: player.status === 'busted',
-      };
+      if (hasDuplicate) {
+        G.discard.push(card);
+        player.status = 'busted';
+        G.lastAction = {
+          playerID: ctx.currentPlayer,
+          draws: [{ card, type: 'number', busted: true }],
+          busted: true,
+        };
+      } else {
+        player.hand.push(card);
+        G.lastAction = {
+          playerID: ctx.currentPlayer,
+          draws: [{ card, type: 'number' }],
+          busted: false,
+        };
+
+        if (player.hand.length >= FLIP7_COUNT) {
+          player.status = 'flip7';
+        }
+      }
 
       // Check if round should end
       if (anyFlip7(G) || allPlayersInactive(G)) {
@@ -214,15 +175,9 @@ export const Flip7 = {
   },
 
   playerView: ({ G }) => {
-    let numberCards = 0;
-    let actionCards = 0;
-    for (const card of G.deck) {
-      if (typeof card === 'number') numberCards++;
-      else actionCards++;
-    }
     return {
       ...G,
-      deck: { total: G.deck.length, numberCards, actionCards },
+      deck: G.deck.length,
       discard: G.discard.length,
     };
   },

@@ -3,9 +3,6 @@ import { getDeckSize, getDiscardSize } from './deck.js';
 
 /**
  * Calculate the probability of busting on the next draw for a given player.
- * Accounts for action cards in the deck (they are safe draws).
- * If the player has a second chance, the effective bust probability is
- * the chance of busting TWICE in a row (very low), so we return 0.
  *
  * Returns 0 for an empty hand, 1 if the deck is empty.
  */
@@ -17,7 +14,6 @@ export function calculateBustProbability(G, playerID) {
 
   if (hand.length === 0) return 0;
   if (deckSize === 0 && discardSize === 0) return 1;
-  if (player.hasSecondChance) return 0;
 
   let dangerousCards = 0;
   for (const value of hand) {
