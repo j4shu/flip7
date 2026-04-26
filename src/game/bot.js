@@ -12,6 +12,7 @@ export function calculateBustProbability(G, playerID) {
   const player = G.players[playerID];
   const lineup = player.lineup;
   const deckSize = typeof G.deck === 'object' && !Array.isArray(G.deck) ? G.deck.total : (typeof G.deck === 'number' ? G.deck : G.deck.length);
+  const discardSize = typeof G.discard === 'number' ? G.discard : (Array.isArray(G.discard) ? G.discard.length : 0);
 
   if (lineup.length === 0) return 0;
   if (deckSize === 0) return 1;
@@ -29,7 +30,11 @@ export function calculateBustProbability(G, playerID) {
     dangerousCards += Math.max(0, remaining);
   }
 
-  return dangerousCards / deckSize;
+  // Remaining copies are spread across both the deck and discard pile.
+  // Divide by the total unseen pool for an accurate estimate.
+  const unseenPool = deckSize + discardSize;
+  if (unseenPool === 0) return 1;
+  return dangerousCards / unseenPool;
 }
 
 /**
