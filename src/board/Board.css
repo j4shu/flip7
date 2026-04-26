@@ -206,14 +206,6 @@
   letter-spacing: 0.5px;
 }
 
-/* ===== Action Cards Row ===== */
-
-.player-panel__actions {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-
 /* ===== Card ===== */
 
 .card {
@@ -248,7 +240,6 @@
   background: #fff8e1;
   color: #a67c00;
   font-size: 0.7rem;
-  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
@@ -261,10 +252,6 @@
 
 .card--new {
   border-color: #4361ee;
-  animation: cardPop 0.3s ease-out;
-}
-
-.card--action.card--new {
   animation: cardPop 0.3s ease-out;
 }
 

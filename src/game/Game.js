@@ -18,16 +18,28 @@ function anyFlip7(G) {
 }
 
 /**
- * Draw a single card and apply its effect. Returns the draw result object.
- * Handles number cards, freeze, second chance, and flip3 (recursive).
- * Stops early if the player is no longer active (busted/stayed/flip7).
+ * If the draw deck is empty, shuffle the discard pile into it.
  */
-function drawCard(G, player, playerID, draws) {
+function reshuffleIfNeeded(G, random) {
+  if (G.deck.length === 0 && G.discard.length > 0) {
+    G.deck = random.Shuffle([...G.discard]);
+    G.discard = [];
+  }
+}
+
+/**
+ * Draw a single card and apply its effect.
+ * Consumed cards (action cards, busted/saved duplicates) go straight to discard.
+ * Unique number cards go to the player's lineup (discarded at round end).
+ */
+function drawCard(G, player, playerID, draws, random) {
+  reshuffleIfNeeded(G, random);
   if (G.deck.length === 0 || player.status !== 'active') return;
 
   const card = G.deck.pop();
 
   if (isActionCard(card)) {
+    G.discard.push(card);
     draws.push({ card, type: 'action' });
 
     if (card === FREEZE) {
@@ -36,8 +48,8 @@ function drawCard(G, player, playerID, draws) {
       player.hasSecondChance = true;
     } else if (card === FLIP3) {
       for (let i = 0; i < 3; i++) {
-        if (G.deck.length === 0 || player.status !== 'active') break;
-        drawCard(G, player, playerID, draws);
+        if (player.status !== 'active') break;
+        drawCard(G, player, playerID, draws, random);
       }
     }
   } else {
@@ -45,6 +57,7 @@ function drawCard(G, player, playerID, draws) {
     const hasDuplicate = player.lineup.includes(card);
 
     if (hasDuplicate) {
+      G.discard.push(card);
       if (player.hasSecondChance) {
         player.hasSecondChance = false;
         draws.push({ card, type: 'number', saved: true });
@@ -53,6 +66,7 @@ function drawCard(G, player, playerID, draws) {
         draws.push({ card, type: 'number', busted: true });
       }
     } else {
+      // Card stays in lineup (not discarded until round end)
       player.lineup.push(card);
       draws.push({ card, type: 'number' });
 
@@ -101,13 +115,19 @@ function resolveRound(G, events, random) {
     return;
   }
 
-  // Reset for next round
+  // Discard all lineup cards, then reset players for next round
+  for (const player of Object.values(G.players)) {
+    G.discard.push(...player.lineup);
+  }
   G.round += 1;
-  G.deck = random.Shuffle(createDeck());
+  G.roundStarter = G.roundStarter === '0' ? '1' : '0';
   G.lastAction = null;
   for (const id of Object.keys(G.players)) {
     G.players[id] = { lineup: [], status: 'active', hasSecondChance: false };
   }
+
+  // If the deck ran out, reshuffle discard into deck
+  reshuffleIfNeeded(G, random);
 }
 
 export const Flip7 = {
@@ -122,9 +142,11 @@ export const Flip7 = {
     }
     return {
       deck: random.Shuffle(createDeck()),
+      discard: [],
       players,
       totalScores,
       round: 1,
+      roundStarter: '0',
       lastAction: null,
       roundResults: null,
     };
@@ -135,10 +157,10 @@ export const Flip7 = {
       const player = G.players[ctx.currentPlayer];
 
       if (player.status !== 'active') return INVALID_MOVE;
-      if (G.deck.length === 0) return INVALID_MOVE;
+      if (G.deck.length === 0 && G.discard.length === 0) return INVALID_MOVE;
 
       const draws = [];
-      drawCard(G, player, ctx.currentPlayer, draws);
+      drawCard(G, player, ctx.currentPlayer, draws, random);
 
       G.lastAction = {
         playerID: ctx.currentPlayer,
@@ -172,6 +194,13 @@ export const Flip7 = {
       first: () => 0,
       next: ({ G, ctx }) => {
         const numPlayers = ctx.numPlayers;
+
+        // After a round reset all players are active — start with roundStarter
+        const allActive = Object.values(G.players).every(p => p.status === 'active');
+        if (allActive) {
+          return ctx.playOrder.indexOf(G.roundStarter);
+        }
+
         let pos = ctx.playOrderPos;
         for (let i = 0; i < numPlayers; i++) {
           pos = (pos + 1) % numPlayers;
@@ -195,6 +224,7 @@ export const Flip7 = {
     return {
       ...G,
       deck: { total: G.deck.length, numberCards, actionCards },
+      discard: G.discard.length,
     };
   },
 };
