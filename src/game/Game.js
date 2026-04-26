@@ -120,7 +120,6 @@ function resolveRound(G, events, random) {
     G.discard.push(...player.lineup);
   }
   G.round += 1;
-  G.roundStarter = G.roundStarter === '0' ? '1' : '0';
   G.lastAction = null;
   for (const id of Object.keys(G.players)) {
     G.players[id] = { lineup: [], status: 'active', hasSecondChance: false };
@@ -146,7 +145,6 @@ export const Flip7 = {
       players,
       totalScores,
       round: 1,
-      roundStarter: '0',
       lastAction: null,
       roundResults: null,
     };
@@ -194,13 +192,6 @@ export const Flip7 = {
       first: () => 0,
       next: ({ G, ctx }) => {
         const numPlayers = ctx.numPlayers;
-
-        // After a round reset all players are active — start with roundStarter
-        const allActive = Object.values(G.players).every(p => p.status === 'active');
-        if (allActive) {
-          return ctx.playOrder.indexOf(G.roundStarter);
-        }
-
         let pos = ctx.playOrderPos;
         for (let i = 0; i < numPlayers; i++) {
           pos = (pos + 1) % numPlayers;
