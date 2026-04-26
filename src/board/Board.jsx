@@ -71,7 +71,7 @@ export function Board({ G, ctx, moves, reset }) {
       } else {
         moves.stay();
       }
-    }, 400);
+    }, 500);
 
     return () => clearTimeout(botTimerRef.current);
   }, [isBotTurn, isCurrentActive, showRoundSummary, G]);
@@ -83,20 +83,30 @@ export function Board({ G, ctx, moves, reset }) {
       <Scoreboard totalScores={G.totalScores} round={G.round} />
 
       <div className="board__players">
-        {Object.keys(G.players).map((id) => (
-          <PlayerPanel
-            key={id}
-            playerID={id}
-            player={G.players[id]}
-            isCurrent={ctx.currentPlayer === id && !isGameOver}
-            lastAction={G.lastAction}
-            totalScore={G.totalScores[id]}
-            bustChance={calculateBustProbability(G, id)}
-          />
-        ))}
+        {Object.keys(G.players).map((id) => {
+          const showingRound = showRoundSummary && lastRoundResults;
+          const player = showingRound
+            ? lastRoundResults.players[id]
+            : G.players[id];
+          return (
+            <PlayerPanel
+              key={id}
+              playerID={id}
+              player={player}
+              isCurrent={
+                !showingRound && ctx.currentPlayer === id && !isGameOver
+              }
+              lastAction={
+                showingRound ? lastRoundResults.lastAction : G.lastAction
+              }
+              totalScore={G.totalScores[id]}
+              bustChance={showingRound ? 0 : calculateBustProbability(G, id)}
+            />
+          );
+        })}
       </div>
 
-      {!isGameOver && (
+      {!isGameOver && !showRoundSummary && (
         <Controls
           isBotTurn={isBotTurn}
           isActive={isCurrentActive}

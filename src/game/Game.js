@@ -38,13 +38,14 @@ function resolveRound(G, events, random) {
     G.totalScores[id] += roundScore;
   }
 
-  // Store round results for UI display
+  // Store round results for UI display (snapshot before reset)
   G.roundResults = {
     round: G.round,
     scores: roundScores,
     players: Object.fromEntries(
       Object.entries(G.players).map(([id, p]) => [id, { status: p.status, hand: [...p.hand] }])
     ),
+    lastAction: G.lastAction,
   };
 
   // Check for game end
