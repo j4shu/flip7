@@ -334,14 +334,9 @@
   background: #d0d0da;
 }
 
-.controls__deck-counts {
-  margin-top: 4px;
-}
-
 .controls__deck-count {
   font-size: 0.85rem;
   color: #888;
-  line-height: 1.5;
 }
 
 /* ===== Game Over ===== */
