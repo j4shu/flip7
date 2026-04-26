@@ -43,7 +43,8 @@ function drawCard(G, player, playerID, draws, random) {
     draws.push({ card, type: 'action' });
 
     if (card === FREEZE) {
-      player.status = 'stayed';
+      const opponentID = playerID === '0' ? '1' : '0';
+      G.players[opponentID].status = 'stayed';
     } else if (card === SECOND_CHANCE) {
       player.hasSecondChance = true;
     } else if (card === FLIP3) {
