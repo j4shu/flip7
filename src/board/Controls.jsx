@@ -1,5 +1,3 @@
-import React from "react";
-
 function getDeckCounts(deckInfo) {
   if (typeof deckInfo === "number")
     return { total: deckInfo, numberCards: deckInfo, actionCards: 0 };
@@ -8,8 +6,15 @@ function getDeckCounts(deckInfo) {
   return deckInfo;
 }
 
-export function Controls({ isBotTurn, isActive, moves, deckInfo }) {
-  const { total, numberCards, actionCards } = getDeckCounts(deckInfo);
+export function Controls({
+  isBotTurn,
+  isActive,
+  moves,
+  deckInfo,
+  discardCount,
+}) {
+  const { total } = getDeckCounts(deckInfo);
+  const canDraw = total > 0 || discardCount > 0;
 
   return (
     <div className="controls">
@@ -21,7 +26,7 @@ export function Controls({ isBotTurn, isActive, moves, deckInfo }) {
         <button
           className="controls__btn controls__btn--hit"
           onClick={() => moves.hit()}
-          disabled={!isActive || isBotTurn || total === 0}
+          disabled={!isActive || isBotTurn || !canDraw}
         >
           Hit
         </button>
@@ -33,14 +38,7 @@ export function Controls({ isBotTurn, isActive, moves, deckInfo }) {
           Stay
         </button>
       </div>
-      <div className="controls__deck-counts">
-        <div className="controls__deck-count">
-          Remaining Number Cards: {numberCards}
-        </div>
-        <div className="controls__deck-count">
-          Remaining Action Cards: {actionCards}
-        </div>
-      </div>
+      <div className="controls__deck-count">Cards remaining: {total}</div>
     </div>
   );
 }
