@@ -26,11 +26,9 @@ export function PlayerPanel({
 
   const handSum = player.hand.reduce((s, c) => s + c, 0);
 
-  // Find the last number card drawn this turn (for highlight)
-  const lastNumberDraw = [...draws]
-    .reverse()
-    .find((d) => !d.busted);
-  const lastNewCard = lastNumberDraw ? lastNumberDraw.card : null;
+  // Highlight the most recently drawn card
+  const lastDraw = draws[draws.length - 1];
+  const lastNewCard = lastDraw ? lastDraw.card : null;
 
   return (
     <div className={panelClass}>
