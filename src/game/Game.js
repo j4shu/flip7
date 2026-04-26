@@ -1,6 +1,9 @@
 import { INVALID_MOVE } from 'boardgame.io/core';
-import { createDeck } from './deck.js';
-import { WINNING_SCORE, FLIP7_COUNT, FLIP7_BONUS } from './constants.js';
+import { createDeck, isActionCard } from './deck.js';
+import {
+  WINNING_SCORE, FLIP7_COUNT, FLIP7_BONUS,
+  FREEZE, FLIP3, SECOND_CHANCE,
+} from './constants.js';
 
 function sumLineup(lineup) {
   return lineup.reduce((sum, card) => sum + card, 0);
@@ -12,6 +15,52 @@ function allPlayersInactive(G) {
 
 function anyFlip7(G) {
   return Object.entries(G.players).find(([, p]) => p.status === 'flip7');
+}
+
+/**
+ * Draw a single card and apply its effect. Returns the draw result object.
+ * Handles number cards, freeze, second chance, and flip3 (recursive).
+ * Stops early if the player is no longer active (busted/stayed/flip7).
+ */
+function drawCard(G, player, playerID, draws) {
+  if (G.deck.length === 0 || player.status !== 'active') return;
+
+  const card = G.deck.pop();
+
+  if (isActionCard(card)) {
+    draws.push({ card, type: 'action' });
+
+    if (card === FREEZE) {
+      player.status = 'stayed';
+    } else if (card === SECOND_CHANCE) {
+      player.hasSecondChance = true;
+    } else if (card === FLIP3) {
+      for (let i = 0; i < 3; i++) {
+        if (G.deck.length === 0 || player.status !== 'active') break;
+        drawCard(G, player, playerID, draws);
+      }
+    }
+  } else {
+    // Number card
+    const hasDuplicate = player.lineup.includes(card);
+
+    if (hasDuplicate) {
+      if (player.hasSecondChance) {
+        player.hasSecondChance = false;
+        draws.push({ card, type: 'number', saved: true });
+      } else {
+        player.status = 'busted';
+        draws.push({ card, type: 'number', busted: true });
+      }
+    } else {
+      player.lineup.push(card);
+      draws.push({ card, type: 'number' });
+
+      if (player.lineup.length >= FLIP7_COUNT) {
+        player.status = 'flip7';
+      }
+    }
+  }
 }
 
 function resolveRound(G, events, random) {
@@ -57,7 +106,7 @@ function resolveRound(G, events, random) {
   G.deck = random.Shuffle(createDeck());
   G.lastAction = null;
   for (const id of Object.keys(G.players)) {
-    G.players[id] = { lineup: [], status: 'active' };
+    G.players[id] = { lineup: [], status: 'active', hasSecondChance: false };
   }
 }
 
@@ -68,7 +117,7 @@ export const Flip7 = {
     const players = {};
     const totalScores = {};
     for (let i = 0; i < ctx.numPlayers; i++) {
-      players[String(i)] = { lineup: [], status: 'active' };
+      players[String(i)] = { lineup: [], status: 'active', hasSecondChance: false };
       totalScores[String(i)] = 0;
     }
     return {
@@ -85,24 +134,17 @@ export const Flip7 = {
     hit: ({ G, ctx, events, random }) => {
       const player = G.players[ctx.currentPlayer];
 
-      // Validate
       if (player.status !== 'active') return INVALID_MOVE;
       if (G.deck.length === 0) return INVALID_MOVE;
 
-      const card = G.deck.pop();
-      const hasDuplicate = player.lineup.includes(card);
+      const draws = [];
+      drawCard(G, player, ctx.currentPlayer, draws);
 
-      if (hasDuplicate) {
-        player.status = 'busted';
-        G.lastAction = { playerID: ctx.currentPlayer, card, busted: true };
-      } else {
-        player.lineup.push(card);
-        G.lastAction = { playerID: ctx.currentPlayer, card, busted: false };
-
-        if (player.lineup.length >= FLIP7_COUNT) {
-          player.status = 'flip7';
-        }
-      }
+      G.lastAction = {
+        playerID: ctx.currentPlayer,
+        draws,
+        busted: player.status === 'busted',
+      };
 
       // Check if round should end
       if (anyFlip7(G) || allPlayersInactive(G)) {
@@ -116,7 +158,7 @@ export const Flip7 = {
       if (player.status !== 'active') return INVALID_MOVE;
 
       player.status = 'stayed';
-      G.lastAction = { playerID: ctx.currentPlayer, card: null, busted: false, stayed: true };
+      G.lastAction = { playerID: ctx.currentPlayer, draws: [], busted: false, stayed: true };
 
       if (allPlayersInactive(G)) {
         resolveRound(G, events, random);
@@ -138,18 +180,21 @@ export const Flip7 = {
             return pos;
           }
         }
-        // All players inactive — round was already resolved in the move.
-        // Return next position so the turn can end cleanly.
         return (ctx.playOrderPos + 1) % numPlayers;
       },
     },
   },
 
-  playerView: ({ G, playerID }) => {
-    // Hide the deck contents — only show the count
+  playerView: ({ G }) => {
+    let numberCards = 0;
+    let actionCards = 0;
+    for (const card of G.deck) {
+      if (typeof card === 'number') numberCards++;
+      else actionCards++;
+    }
     return {
       ...G,
-      deck: G.deck.length,
+      deck: { total: G.deck.length, numberCards, actionCards },
     };
   },
 };

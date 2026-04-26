@@ -7,15 +7,18 @@ function getRiskLevel(pct) {
   return "high";
 }
 
-export function Controls({
-  isBotTurn,
-  isActive,
-  moves,
-  deckCount,
-  bustChance,
-}) {
+function getDeckCounts(deckInfo) {
+  if (typeof deckInfo === "number")
+    return { total: deckInfo, numberCards: deckInfo, actionCards: 0 };
+  if (Array.isArray(deckInfo))
+    return { total: deckInfo.length, numberCards: 0, actionCards: 0 };
+  return deckInfo;
+}
+
+export function Controls({ isBotTurn, isActive, moves, deckInfo, bustChance }) {
   const pct = Math.round(bustChance * 100);
   const riskLevel = getRiskLevel(pct);
+  const { total, numberCards, actionCards } = getDeckCounts(deckInfo);
 
   return (
     <div className="controls">
@@ -37,7 +40,7 @@ export function Controls({
         <button
           className="controls__btn controls__btn--hit"
           onClick={() => moves.hit()}
-          disabled={!isActive || isBotTurn || deckCount === 0}
+          disabled={!isActive || isBotTurn || total === 0}
         >
           Hit
         </button>
@@ -49,7 +52,9 @@ export function Controls({
           Stay
         </button>
       </div>
-      <div className="controls__deck-count">Cards remaining: {deckCount}</div>
+      <div className="controls__deck-count">
+        Cards Remaining: {numberCards} number, {actionCards} action
+      </div>
     </div>
   );
 }

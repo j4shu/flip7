@@ -145,6 +145,29 @@
   color: #555;
 }
 
+/* ===== Second Chance Indicator ===== */
+
+.player-panel__second-chance {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #c62828;
+  background: #ffebee;
+  padding: 3px 10px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ===== Action Cards Row ===== */
+
+.player-panel__actions {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
 /* ===== Card ===== */
 
 .card {
@@ -162,8 +185,40 @@
   transition: transform 0.2s, border-color 0.2s;
 }
 
+.card--action {
+  width: auto;
+  min-width: 40px;
+  padding: 0 8px;
+  font-size: 1.2rem;
+}
+
+.card--freeze {
+  border-color: #1565c0;
+  background: #e3f2fd;
+}
+
+.card--flip3 {
+  border-color: #e6a817;
+  background: #fff8e1;
+  color: #a67c00;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.card--second-chance {
+  border-color: #c62828;
+  background: #ffebee;
+  color: #c62828;
+}
+
 .card--new {
   border-color: #4361ee;
+  animation: cardPop 0.3s ease-out;
+}
+
+.card--action.card--new {
   animation: cardPop 0.3s ease-out;
 }
 
@@ -172,6 +227,14 @@
   background: #ffebee;
   color: #c62828;
   text-decoration: line-through;
+}
+
+.card--saved {
+  border-color: #e6a817;
+  background: #fff8e1;
+  color: #a67c00;
+  text-decoration: line-through;
+  opacity: 0.7;
 }
 
 @keyframes cardPop {

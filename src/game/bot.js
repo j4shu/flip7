@@ -2,18 +2,20 @@ import { CARDS_PER_VALUE } from './constants.js';
 
 /**
  * Calculate the probability of busting on the next draw for a given player.
- * Counts dangerous cards (duplicates of held values) remaining in the deck,
- * accounting for copies visible in other players' lineups.
+ * Accounts for action cards in the deck (they are safe draws).
+ * If the player has a second chance, the effective bust probability is
+ * the chance of busting TWICE in a row (very low), so we return 0.
  *
  * Returns 0 for an empty lineup, 1 if the deck is empty.
  */
 export function calculateBustProbability(G, playerID) {
   const player = G.players[playerID];
   const lineup = player.lineup;
-  const deckSize = typeof G.deck === 'number' ? G.deck : G.deck.length;
+  const deckSize = typeof G.deck === 'object' && !Array.isArray(G.deck) ? G.deck.total : (typeof G.deck === 'number' ? G.deck : G.deck.length);
 
   if (lineup.length === 0) return 0;
   if (deckSize === 0) return 1;
+  if (player.hasSecondChance) return 0;
 
   let dangerousCards = 0;
   for (const value of lineup) {
@@ -58,7 +60,7 @@ export function resetBotPersonality() {
 export function decideBotMove(G, botID) {
   const bot = G.players[botID];
   const lineup = bot.lineup;
-  const deckSize = typeof G.deck === 'number' ? G.deck : G.deck.length;
+  const deckSize = typeof G.deck === 'object' && !Array.isArray(G.deck) ? G.deck.total : (typeof G.deck === 'number' ? G.deck : G.deck.length);
 
   if (lineup.length === 0) return 'hit';
   if (deckSize === 0) return 'stay';

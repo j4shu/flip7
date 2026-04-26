@@ -1,47 +1,78 @@
-import React from 'react';
-import { Card } from './Card.jsx';
-import { PLAYER_NAMES } from '../game/constants.js';
+import React from "react";
+import { Card } from "./Card.jsx";
+import { PLAYER_NAMES } from "../game/constants.js";
 
 const STATUS_LABELS = {
-  active: 'Active',
-  stayed: 'Stayed',
-  busted: 'Busted',
-  flip7: 'FLIP 7!',
+  active: "Active",
+  stayed: "Stayed",
+  busted: "Busted",
+  flip7: "FLIP 7!",
 };
 
-export function PlayerPanel({ playerID, player, isCurrent, lastAction, totalScore }) {
+export function PlayerPanel({
+  playerID,
+  player,
+  isCurrent,
+  lastAction,
+  totalScore,
+}) {
   const isLastActionMine = lastAction && lastAction.playerID === playerID;
-  const lastCard = isLastActionMine ? lastAction.card : null;
-  const wasBust = isLastActionMine && lastAction.busted;
+  const draws = isLastActionMine ? lastAction.draws : [];
 
-  let panelClass = 'player-panel';
-  if (isCurrent) panelClass += ' player-panel--current';
-  if (player.status === 'busted') panelClass += ' player-panel--busted';
-  if (player.status === 'flip7') panelClass += ' player-panel--flip7';
+  let panelClass = "player-panel";
+  if (isCurrent) panelClass += " player-panel--current";
+  if (player.status === "busted") panelClass += " player-panel--busted";
+  if (player.status === "flip7") panelClass += " player-panel--flip7";
 
   const lineupSum = player.lineup.reduce((s, c) => s + c, 0);
+
+  // Find the last number card drawn this turn (for highlight)
+  const lastNumberDraw = [...draws]
+    .reverse()
+    .find((d) => d.type === "number" && !d.busted && !d.saved);
+  const lastNewCard = lastNumberDraw ? lastNumberDraw.card : null;
+
+  // Find bust card if any
+  const bustDraw = draws.find((d) => d.busted);
+
+  // Find saved cards (second chance consumed)
+  const savedDraws = draws.filter((d) => d.saved);
+
+  // Action cards drawn this turn
+  const actionDraws = draws.filter((d) => d.type === "action");
 
   return (
     <div className={panelClass}>
       <div className="player-panel__header">
         <span className="player-panel__name">{PLAYER_NAMES[playerID]}</span>
-        <span className={`player-panel__status player-panel__status--${player.status}`}>
+        <span
+          className={`player-panel__status player-panel__status--${player.status}`}
+        >
           {STATUS_LABELS[player.status]}
         </span>
       </div>
+
       <div className="player-panel__cards">
         {player.lineup.map((card, i) => (
           <Card
             key={i}
             value={card}
-            isNew={card === lastCard && i === player.lineup.length - 1}
-            isBust={false}
+            isNew={card === lastNewCard && i === player.lineup.length - 1}
           />
         ))}
-        {wasBust && lastCard !== null && (
-          <Card value={lastCard} isNew={true} isBust={true} />
-        )}
+        {actionDraws.map((d, i) => (
+          <Card key={`action-${i}`} value={d.card} isNew />
+        ))}
+        {savedDraws.map((d, i) => (
+          <Card key={`saved-${i}`} value={d.card} isNew isSaved />
+        ))}
+        {bustDraw && <Card value={bustDraw.card} isNew isBust />}
       </div>
+
+      {player.hasSecondChance && (
+        <div className="player-panel__second-chance">❤️‍🩹</div>
+      )}
+
       <div className="player-panel__scores">
         <span>Round: {lineupSum}</span>
         <span>Total: {totalScore}</span>

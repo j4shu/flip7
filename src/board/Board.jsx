@@ -1,23 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { PlayerPanel } from './PlayerPanel.jsx';
-import { Controls } from './Controls.jsx';
-import { Scoreboard } from './Scoreboard.jsx';
-import { GameOver } from './GameOver.jsx';
-import { decideBotMove, calculateBustProbability } from '../game/bot.js';
-import { BOT_ID, HUMAN_ID, PLAYER_NAMES } from '../game/constants.js';
-import './Board.css';
+import React, { useState, useEffect, useRef } from "react";
+import { PlayerPanel } from "./PlayerPanel.jsx";
+import { Controls } from "./Controls.jsx";
+import { Scoreboard } from "./Scoreboard.jsx";
+import { GameOver } from "./GameOver.jsx";
+import { decideBotMove, calculateBustProbability } from "../game/bot.js";
+import { BOT_ID, HUMAN_ID, PLAYER_NAMES } from "../game/constants.js";
+import "./Board.css";
 
 const STATUS_LABELS = {
-  active: 'Active',
-  stayed: 'Stayed',
-  busted: 'Busted',
-  flip7: 'FLIP 7!',
+  active: "Active",
+  stayed: "Stayed",
+  busted: "Busted",
+  flip7: "FLIP 7!",
 };
 
 function RoundSummary({ roundResults, onDismiss }) {
   return (
     <div className="round-summary-overlay" onClick={onDismiss}>
-      <div className="round-summary" onClick={e => e.stopPropagation()}>
+      <div className="round-summary" onClick={(e) => e.stopPropagation()}>
         <h2>Round {roundResults.round} Complete</h2>
         <div className="round-summary__players">
           {Object.entries(roundResults.players).map(([id, info]) => {
@@ -25,7 +25,9 @@ function RoundSummary({ roundResults, onDismiss }) {
             return (
               <div key={id} className="round-summary__row">
                 <span className="round-summary__name">{PLAYER_NAMES[id]}</span>
-                <span className={`round-summary__status round-summary__status--${info.status}`}>
+                <span
+                  className={`round-summary__status round-summary__status--${info.status}`}
+                >
                   {STATUS_LABELS[info.status]}
                 </span>
                 <span className="round-summary__score">+{score}</span>
@@ -45,7 +47,8 @@ export function Board({ G, ctx, moves, reset }) {
   const isGameOver = ctx.gameover != null;
   const isBotTurn = ctx.currentPlayer === BOT_ID && !isGameOver;
   const currentPlayerObj = G.players[ctx.currentPlayer];
-  const isCurrentActive = currentPlayerObj && currentPlayerObj.status === 'active';
+  const isCurrentActive =
+    currentPlayerObj && currentPlayerObj.status === "active";
 
   const [showRoundSummary, setShowRoundSummary] = useState(false);
   const [lastRoundResults, setLastRoundResults] = useState(null);
@@ -53,7 +56,10 @@ export function Board({ G, ctx, moves, reset }) {
 
   // Show round summary when a round ends
   useEffect(() => {
-    if (G.roundResults && (!lastRoundResults || G.roundResults.round !== lastRoundResults.round)) {
+    if (
+      G.roundResults &&
+      (!lastRoundResults || G.roundResults.round !== lastRoundResults.round)
+    ) {
       setLastRoundResults(G.roundResults);
       setShowRoundSummary(true);
     }
@@ -65,7 +71,7 @@ export function Board({ G, ctx, moves, reset }) {
 
     botTimerRef.current = setTimeout(() => {
       const decision = decideBotMove(G, BOT_ID);
-      if (decision === 'hit') {
+      if (decision === "hit") {
         moves.hit();
       } else {
         moves.stay();
@@ -82,7 +88,7 @@ export function Board({ G, ctx, moves, reset }) {
       <Scoreboard totalScores={G.totalScores} round={G.round} />
 
       <div className="board__players">
-        {Object.keys(G.players).map(id => (
+        {Object.keys(G.players).map((id) => (
           <PlayerPanel
             key={id}
             playerID={id}
@@ -99,7 +105,7 @@ export function Board({ G, ctx, moves, reset }) {
           isBotTurn={isBotTurn}
           isActive={isCurrentActive}
           moves={moves}
-          deckCount={typeof G.deck === 'number' ? G.deck : G.deck.length}
+          deckInfo={G.deck}
           bustChance={calculateBustProbability(G, HUMAN_ID)}
         />
       )}
