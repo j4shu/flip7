@@ -54,8 +54,9 @@ export function Board({ G, ctx, moves, reset }) {
   const [lastRoundResults, setLastRoundResults] = useState(null);
   const botTimerRef = useRef(null);
 
-  // Show round summary when a round ends
+  // Show round summary when a round ends (but not on the final round)
   useEffect(() => {
+    if (isGameOver) return;
     if (
       G.roundResults &&
       (!lastRoundResults || G.roundResults.round !== lastRoundResults.round)
@@ -63,7 +64,7 @@ export function Board({ G, ctx, moves, reset }) {
       setLastRoundResults(G.roundResults);
       setShowRoundSummary(true);
     }
-  }, [G.roundResults]);
+  }, [G.roundResults, isGameOver]);
 
   // Auto-play bot turns
   useEffect(() => {
