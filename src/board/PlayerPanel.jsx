@@ -25,7 +25,10 @@ export function PlayerPanel({
   if (player.status === "busted") panelClass += " player-panel--busted";
   if (player.status === "flip7") panelClass += " player-panel--flip7";
 
-  const handSum = player.hand.reduce((s, c) => s + c, 0);
+  const isBusted = player.status === "busted";
+  const displayHand = isBusted ? player.hand.slice(0, -1) : player.hand;
+  const bustCard = isBusted ? player.hand[player.hand.length - 1] : null;
+  const handSum = displayHand.reduce((s, c) => s + c, 0);
 
   return (
     <div className={panelClass}>
@@ -39,14 +42,14 @@ export function PlayerPanel({
       </div>
 
       <div className="player-panel__cards">
-        {player.hand.map((card, i) => (
+        {displayHand.map((card, i) => (
           <Card
             key={i}
             value={card}
-            isNew={card === lastNewCard && i === player.hand.length - 1}
+            isNew={card === lastNewCard && i === displayHand.length - 1}
           />
         ))}
-        {player.bustCard != null && <Card value={player.bustCard} isBust />}
+        {bustCard != null && <Card value={bustCard} isBust />}
       </div>
 
       {player.status === "active" &&
