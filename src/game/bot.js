@@ -15,7 +15,7 @@ export function calculateBustProbability(G, playerID) {
   const discardSize = typeof G.discard === 'number' ? G.discard : (Array.isArray(G.discard) ? G.discard.length : 0);
 
   if (lineup.length === 0) return 0;
-  if (deckSize === 0) return 1;
+  if (deckSize === 0 && discardSize === 0) return 1;
   if (player.hasSecondChance) return 0;
 
   let dangerousCards = 0;

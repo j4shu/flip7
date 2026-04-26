@@ -107,6 +107,7 @@ export function Board({ G, ctx, moves, reset }) {
           isActive={isCurrentActive}
           moves={moves}
           deckInfo={G.deck}
+          discardCount={typeof G.discard === 'number' ? G.discard : G.discard.length}
         />
       )}
 
